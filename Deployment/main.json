@@ -39,6 +39,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "mainDeployment",
+      "location": "[parameters('location')]", // Add this line
       "properties": {
         "mode": "Incremental",
         "templateLink": {
