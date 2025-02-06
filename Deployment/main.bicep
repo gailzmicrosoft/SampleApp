@@ -1,13 +1,6 @@
 param resourceGroupName string
 param resourcePrefix string
 param subscriptionId string
-
-var resourceToken = toLower(uniqueString(subscription().id, resourcePrefix, resourceGroupName))
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: '${resourcePrefix}StorageAccouparam resourceGroupName string
-param resourcePrefix string
-param subscriptionId string
 param location string
 
 var resourceToken = toLower(uniqueString(subscription().id, resourcePrefix, resourceGroupName))
@@ -24,6 +17,13 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
+resource mortgageAppContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+  name: '${storageAccount.name}/default/mortgageapp'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
 resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
   name: '${resourcePrefix}FormRecognizer'
   location: location
@@ -42,6 +42,73 @@ resource appConfig 'Microsoft.AppConfiguration/configurationStores@2021-03-01-pr
   }
   properties: {}
 }
+
+// Need to create Azure cosmos DB None SQL API account
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
+  name: '${resourcePrefix}CosmosDb'
+  location: location
+  kind: 'GlobalDocumentDB'
+  properties: {
+    databaseAccountOfferType: 'Standard'
+    locations: [
+      {
+        locationName: location
+      }
+    ]
+  }
+}
+
+
+var cosmosDbEndpoint = listKeys(cosmosDbAccount.id, '2021-04-15').documentEndpoint
+
+// get formRecognizre end point and key
+//output formRecognizerEndpoint string = formRecognizer.properties.endpoint
+var formRecognizerEndpoint = formRecognizer.properties.endpoint
+var formRecognizerKey = listKeys(formRecognizer.id, '2021-04-30').key1
+
+
+resource appConfigKeys 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-03-01-preview' = [for key in [
+  {
+    name: 'azure-storage-account-name'
+    value: storageAccount.name
+  }
+  {
+    name: 'azure-storage-blob-container-name'
+    value: 'mortgageapp'
+  }
+  {
+    name: 'cosmos-db-endpoint'
+    value: cosmosDbEndpoint // cosmosDbAccount.properties.documentEndpoint
+  }
+  {
+    name: 'cosmos-db-name'
+    value: 'LoanAppDatabase'
+  }
+  {
+    name: 'cosmos-db-container-name'
+    value: 'LoanAppDataContainer'
+  }
+  {
+    name: 'form-recognizer-end-point'
+    value: formRecognizerEndpoint
+  }
+  {
+    name: 'form-recognizer-key'
+    value: formRecognizerKey
+  }
+  {
+    name: 'x-api-key'
+    value: 'AppConfigApiKey'
+  }
+]: {
+  parent: appConfig
+  name: key.name
+  properties: {
+    value: key.value
+  }
+}]
+
+
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: '${resourcePrefix}AppServicePlan'
@@ -67,73 +134,10 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(appService.id, 'Contributor')
   properties: {
-    roleDefinitionId: '/subscriptions/${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/<role-definition-id>'
+    roleDefinitionId: '/subscriptions/${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
     scope: resourceGroup().id
   }
 }
 
-output formRecognizerEndpoint string = formRecognizer.properties.endpoint
-nt'
-  location: resourceGroup().location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  properties: {
-    hierarchicalNamespace: true
-  }
-}
-
-resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
-  name: '${resourcePrefix}FormRecognizer'
-  location: resourceGroup().location
-  kind: 'FormRecognizer'
-  sku: {
-    name: 'S0'
-  }
-  properties: {}
-}
-
-resource appConfig 'Microsoft.AppConfiguration/configurationStores@2021-03-01-preview' = {
-  name: '${resourcePrefix}AppConfig'
-  location: resourceGroup().location
-  sku: {
-    name: 'Standard'
-  }
-  properties: {}
-}
-
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
-  name: '${resourcePrefix}AppServicePlan'
-  location: resourceGroup().location
-  sku: {
-    name: 'P1v2'
-    tier: 'PremiumV2'
-  }
-}
-
-resource appService 'Microsoft.Web/sites@2021-02-01' = {
-  name: '${resourcePrefix}AppService'
-  location: resourceGroup().location
-  kind: 'app'
-  properties: {
-    serverFarmId: appServicePlan.id
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(appService.id, 'Contributor')
-  properties: {
-    roleDefinitionId: '/subscriptions/${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/<role-definition-id>'
-    principalId: appService.identity.principalId
-    principalType: 'ServicePrincipal'
-    scope: resourceGroup().id
-  }
-}
-
-output formRecognizerEndpoint string = formRecognizer.properties.endpoint

@@ -35,7 +35,7 @@
 			"properties": {
 				"mode": "Incremental",
 				"templateLink": {
-					"uri": "https://raw.githubusercontent.com/gailzmicrosoft/MortgageApp/Deployment/main.bicep",
+					"uri": "https://raw.githubusercontent.com/gailzmicrosoft/MortgageApp/main/Deployment/main.bicep",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
