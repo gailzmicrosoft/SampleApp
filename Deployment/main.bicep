@@ -3,8 +3,6 @@ param resourcePrefix string
 param subscriptionId string
 param location string
 
-var resourceToken = toLower(uniqueString(subscription().id, resourcePrefix, resourceGroupName))
-
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: '${resourcePrefix}StorageAccount'
   location: location
