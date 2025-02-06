@@ -46,10 +46,6 @@
           "uri": "https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/main.bicep",
           "contentVersion": "1.0.0.0"
         },
-        "parametersLink": {
-          "uri": "https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/main.parameters.json",
-          "contentVersion": "1.0.0.0"
-        },
         "parameters": {
           "subscriptionId": {
             "value": "[subscription().subscriptionId]"
