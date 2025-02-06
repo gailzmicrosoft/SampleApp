@@ -1,7 +1,11 @@
-param resourceGroupName string
-param resourcePrefix string
-param subscriptionId string
-param location string
+
+param resourcePrefix string = 'mortgageapp'
+
+
+//var resourceGroupName = resourceGroup().name
+var location = resourceGroup().location
+var subscriptionId = subscription().id
+
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: '${resourcePrefix}StorageAccount'
@@ -12,12 +16,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource mortgageAppContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
-  name: '${storageAccount.name}/mortgage'
-  properties: {
-    publicAccess: 'None'
-  }
-}
+
+
+// resource mortgageAppContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
+//   scope: storageAccount
+//   name: 'mortgage'
+//   properties: {
+//     publicAccess: 'None'
+//   }
+// }
+
 
 resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
   name: '${resourcePrefix}FormRecognizer'
