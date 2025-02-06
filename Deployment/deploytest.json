@@ -18,8 +18,7 @@
     }
   },
   "variables": {
-    "resourceToken": "[toLower(uniqueString(subscription().subscriptionId, parameters('resourcePrefix'), parameters('resourceGroupName')))]",
-    "rgName": "[format('rg-{0}', parameters('resourcePrefix'))]"
+    "rgName": "[parameters('resourceGroupName')]"
   },
   "resources": [
     {
