@@ -12,13 +12,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   sku: {
     name: 'Standard_LRS'
   }
-  properties: {
-    hierarchicalNamespace: true
-  }
 }
 
 resource mortgageAppContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
-  name: '${storageAccount.name}/default/mortgageapp'
+  name: '${storageAccount.name}/mortgage'
   properties: {
     publicAccess: 'None'
   }
@@ -58,15 +55,24 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
   }
 }
 
+/*
+output cosmosDbEndpoint string = listKeys(cosmosDbAccount.id, '2021-04-15').documentEndpoint
+output formRecognizerEndpoint string = formRecognizer.properties.endpoint
+output formRecognizerKey string = listKeys(formRecognizer.id, '2021-04-30').key1
+
+
+var cosmosDbEndpoint = listKeys(cosmosDbAccount.id, '2021-04-15').documentEndpoint
+var formRecognizerEndpoint = formRecognizer.properties.endpoint
+var formRecognizerKey string = listKeys(formRecognizer.id, '2021-04-30').key1
+*/
 
 var cosmosDbEndpoint = listKeys(cosmosDbAccount.id, '2021-04-15').documentEndpoint
 
-// get formRecognizre end point and key
-//output formRecognizerEndpoint string = formRecognizer.properties.endpoint
 var formRecognizerEndpoint = formRecognizer.properties.endpoint
 var formRecognizerKey = listKeys(formRecognizer.id, '2021-04-30').key1
 
 
+/*
 resource appConfigKeys 'Microsoft.AppConfiguration/configurationStores/keyValues@2021-03-01-preview' = [for key in [
   {
     name: 'azure-storage-account-name'
@@ -78,7 +84,7 @@ resource appConfigKeys 'Microsoft.AppConfiguration/configurationStores/keyValues
   }
   {
     name: 'cosmos-db-endpoint'
-    value: cosmosDbEndpoint // cosmosDbAccount.properties.documentEndpoint
+    value: cosmosDbEndpoint
   }
   {
     name: 'cosmos-db-name'
@@ -90,11 +96,11 @@ resource appConfigKeys 'Microsoft.AppConfiguration/configurationStores/keyValues
   }
   {
     name: 'form-recognizer-end-point'
-    value: formRecognizerEndpoint
+    value: formRecognizerEndpoint.value
   }
   {
     name: 'form-recognizer-key'
-    value: formRecognizerKey
+    value: formRecognizerKey.value
   }
   {
     name: 'x-api-key'
@@ -106,9 +112,14 @@ resource appConfigKeys 'Microsoft.AppConfiguration/configurationStores/keyValues
   properties: {
     value: key.value
   }
+  dependsOn: [
+    cosmosDbAccount
+    formRecognizer
+  ]
 }]
 
 
+*/
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: '${resourcePrefix}AppServicePlan'
@@ -140,4 +151,3 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
     scope: resourceGroup().id
   }
 }
-
