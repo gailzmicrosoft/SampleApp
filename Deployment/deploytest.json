@@ -4,8 +4,7 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.32.4.45862",
-      "templateHash": "10393431399891556417"
+      "version": "0.32.4.45862"
     }
   },
   "parameters": {
@@ -25,7 +24,7 @@
     }
   },
   "variables": {
-    "resourceToken": "[toLower(uniqueString(subscription().subscriptionId, parameters('resourcePrefix'), parameters('resourceGroupName')))]",
+    "resourceToken": "[substring(toLower(uniqueString(subscription().subscriptionId, parameters('resourcePrefix'), parameters('resourceGroupName'))), 0, 5)]",
     "rgName": "[parameters('resourceGroupName')]"
   },
   "resources": [
@@ -57,7 +56,7 @@
             "value": "[parameters('resourcePrefix')]"
           },
           "storageAccountName": {
-            "value": "[concat(parameters('resourcePrefix'), 'StorageAccount')]"
+            "value": "[concat(parameters('resourcePrefix'), variables('resourceToken'), 'StorageAccount')]"
           },
           "appServiceName": {
             "value": "[concat(parameters('resourcePrefix'), 'AppService')]"
