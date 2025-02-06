@@ -4,7 +4,7 @@
   "parameters": {
     "resourceGroupName": {
       "type": "string",
-      "defaultValue": "myResourceGroup",
+      "defaultValue": "gail-test-rg1",
       "metadata": {
         "description": "Name of the resource group to create or use."
       }
