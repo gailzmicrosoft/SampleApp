@@ -2,10 +2,10 @@
 	"$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"subscriptionId": {
+		"subscriptionName": {
 			"type": "string",
 			"metadata": {
-				"description": "Subscription ID to deploy the resources."
+				"description": "Subscription name to deploy the resources."
 			}
 		},
 		"location": {
@@ -31,10 +31,28 @@
 		}
 	},
 	"variables": {
-		"resourceToken": "[toLower(uniqueString(parameters('subscriptionId'), parameters('resourcePrefix'), parameters('resourceGroupName')))]",
+		"resourceToken": "[toLower(uniqueString(subscription().subscriptionId, parameters('resourcePrefix'), parameters('resourceGroupName')))]",
 		"rgName": "[format('rg-{0}', parameters('resourcePrefix'))]"
 	},
 	"resources": [
+		{
+			"type": "Microsoft.Resources/deploymentScripts",
+			"apiVersion": "2020-10-01",
+			"name": "getSubscriptionId",
+			"location": "[parameters('location')]",
+			"properties": {
+				"azPowerShellVersion": "2.5.0",
+				"scriptContent": "param([string] $subscriptionName)\n$subscription = Get-AzSubscription -SubscriptionName $subscriptionName\n$subscriptionId = $subscription.Id\n$subscriptionId",
+				"arguments": "[parameters('subscriptionName')]",
+				"retentionInterval": "P1D",
+				"timeout": "PT30M",
+				"cleanupPreference": "OnSuccess",
+				"output": {
+					"type": "string",
+					"value": "[reference('getSubscriptionId').outputs.subscriptionId.value]"
+				}
+			}
+		},
 		{
 			"type": "Microsoft.Resources/resourceGroups",
 			"apiVersion": "2021-04-01",
@@ -57,7 +75,7 @@
 				},
 				"parameters": {
 					"subscriptionId": {
-						"value": "[parameters('subscriptionId')]"
+						"value": "[reference('getSubscriptionId').outputs.subscriptionId.value]"
 					},
 					"location": {
 						"value": "[parameters('location')]"
