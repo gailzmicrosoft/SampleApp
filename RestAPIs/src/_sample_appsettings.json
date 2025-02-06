@@ -1,0 +1,31 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    },
+    "Console": {
+      "LogLevel": {
+        "Default": "Information"
+      }
+    },
+    "Debug": {
+      "LogLevel": {
+        "Default": "Information"
+      }
+    }
+  },
+  "AppConfig": {
+    "ConnectionString": "ConnectionStringOfYourAppConfigurator_where_endpoints_etc_are_stored"
+  },
+  "KeyVault": {
+    "VaultUri": "https://your_keyvault.vault.azure.net/",
+    "ApiKeySecretName": "x-api-key"
+  },
+  "ApplicationInsights": {
+    "ConnectionString": "ConnectionStringOfYourApplicationInsights_which_helps_you_to_debug_remotely_and_monitor"
+  },
+  "AllowedHosts": "*"
+}
+   
