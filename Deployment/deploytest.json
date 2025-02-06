@@ -9,7 +9,6 @@
     }
   },
   "parameters": {
-    "resourceToken": "[toLower(uniqueString(subscription().subscriptionId, parameters('resourcePrefix'), parameters('resourceGroupName')))]",
     "resourceGroupName": {
       "type": "string",
       "defaultValue": "gail-test-rg1",
@@ -26,6 +25,7 @@
     }
   },
   "variables": {
+    "resourceToken": "[toLower(uniqueString(subscription().subscriptionId, parameters('resourcePrefix'), parameters('resourceGroupName')))]",
     "rgName": "[parameters('resourceGroupName')]"
   },
   "resources": [
