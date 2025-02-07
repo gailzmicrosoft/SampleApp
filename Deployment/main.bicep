@@ -95,6 +95,11 @@ resource appConfig 'Microsoft.AppConfiguration/configurationStores@2021-03-01-pr
     name: 'Standard'
   }
   properties: {}
+  dependsOn: [
+    blobContainer
+    formRecognizer
+    cosmosDbContainer
+  ]
 }
 /*****************************  Key Valu Pairs ***************************/
 resource appConfigKeyAzureStorageName 'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
