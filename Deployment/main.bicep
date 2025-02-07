@@ -226,11 +226,10 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-
 /**************************************************************************/
 // Assign App Service Identity the Contributor role for the Resource Group
 /**************************************************************************/
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(appService.id, 'Contributor')
   properties: {
     roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
@@ -240,4 +239,32 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
+/**************************************************************************/
+// Assign App Service Identity the Storage Blob Data Contributor role for the Storage Account
+/**************************************************************************/
+resource roleAssignmentStorageBlob 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(appService.id, 'StorageBlobDataContributor')
+  properties: {
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+    principalId: appService.identity.principalId
+    principalType: 'ServicePrincipal'
+    scope: storageAccount.id
+  }
+}
+
+/**************************************************************************/
+// Assign App Service Identity the Azure Cosmos DB for NoSQL Data Plane 
+// Owner role for the Cosmos DB Account
+/**************************************************************************/
+resource roleAssignmentCosmosDbOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(appService.id, 'CosmosDbNoSqlDataPlaneOwner')
+  properties: {
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    principalId: appService.identity.principalId
+    principalType: 'ServicePrincipal'
+    scope: cosmosDbAccount.id
+  }
+}
+
 output subscriptionIdValue string = subscriptionId
+

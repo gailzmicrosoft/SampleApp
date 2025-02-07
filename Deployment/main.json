@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.13.18514",
-      "templateHash": "2184758224079097327"
+      "templateHash": "13512790208863358292"
     }
   },
   "parameters": {
@@ -283,6 +283,36 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'StorageBlobDataContributor')]",
+      "properties": {
+        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe', variables('subscriptionId'))]",
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal",
+        "scope": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', toLower(variables('resourcePrefix'))))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', toLower(variables('resourcePrefix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'CosmosDbNoSqlDataPlaneOwner')]",
+      "properties": {
+        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d', variables('subscriptionId'))]",
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal",
+        "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))))]"
       ]
     }
   ],
