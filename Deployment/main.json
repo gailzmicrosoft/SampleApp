@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.33.93.31351",
-      "templateHash": "1935214464633133381"
+      "version": "0.33.13.18514",
+      "templateHash": "2184758224079097327"
     }
   },
   "parameters": {
@@ -67,7 +67,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts",
-      "apiVersion": "2021-04-15",
+      "apiVersion": "2024-09-01-preview",
       "name": "[format('{0}cosmosdbaccount', toLower(variables('resourcePrefix')))]",
       "location": "[variables('location')]",
       "kind": "GlobalDocumentDB",
@@ -81,26 +81,58 @@
       }
     },
     {
-      "type": "Microsoft.DocumentDB/databaseAccounts/databases",
-      "apiVersion": "2023-03-15",
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2024-09-01-preview",
       "name": "[format('{0}/{1}', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase')]",
+      "properties": {
+        "resource": {
+          "id": "LoanAppDatabase"
+        }
+      },
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))))]"
       ]
     },
     {
-      "type": "Microsoft.DocumentDB/databaseAccounts/databases/containers",
-      "apiVersion": "2021-04-15",
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2024-09-01-preview",
       "name": "[format('{0}/{1}/{2}', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]",
       "properties": {
-        "partitionKey": {
-          "paths": [
-            "/id"
-          ]
+        "resource": {
+          "id": "LoanAppDataContainer",
+          "indexingPolicy": {
+            "indexingMode": "consistent",
+            "automatic": true,
+            "includedPaths": [
+              {
+                "path": "/*"
+              }
+            ],
+            "excludedPaths": [
+              {
+                "path": "/\"_etag\"/?"
+              }
+            ]
+          },
+          "partitionKey": {
+            "paths": [
+              "/LoanAppDataId"
+            ],
+            "kind": "Hash",
+            "version": 2
+          },
+          "uniqueKeyPolicy": {
+            "uniqueKeys": []
+          },
+          "conflictResolutionPolicy": {
+            "mode": "LastWriterWins",
+            "conflictResolutionPath": "/_ts"
+          },
+          "computedProperties": []
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase')]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase')]"
       ]
     },
     {
@@ -114,7 +146,7 @@
       "properties": {},
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', format('{0}storage', toLower(variables('resourcePrefix'))), 'default', 'mortgageapp')]",
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases/containers', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]",
         "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix')))]"
       ]
     },
@@ -147,7 +179,7 @@
       "apiVersion": "2024-05-01",
       "name": "[format('{0}/{1}', format('{0}AppConfig', variables('resourcePrefix')), 'cosmos-db-endpoint')]",
       "properties": {
-        "value": "[string(reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix')))), '2021-04-15').documentEndpoint)]"
+        "value": "[string(reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix')))), '2024-09-01-preview').documentEndpoint)]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
@@ -163,7 +195,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase')]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase')]"
       ]
     },
     {
@@ -175,7 +207,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases/containers', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]"
       ]
     },
     {

@@ -53,7 +53,8 @@ resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
 /**************************************************************************/
 // Create a Cosmos DB account
 /**************************************************************************/
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
+
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-09-01-preview' = {
   name: '${toLower(resourcePrefix)}cosmosdbaccount'
   location: location
   kind: 'GlobalDocumentDB'
@@ -64,32 +65,61 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
         locationName: location
       }
     ]
-     capabilities: [
-      {
-        name: 'EnableServerless'
-      }
-    ]
   }
 }
 
 // Create a database in the Cosmos DB account named LoanAppDatabase
-resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/databases@2023-03-15' = {
+//Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-09-01-preview
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-09-01-preview' = {
   parent: cosmosDbAccount
   name: 'LoanAppDatabase'
-}
-
-// Create a container in the database named LoanAppDataContainer with partition key id
-resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/containers@2023-03-15' = {
-  parent: cosmosDbDatabase
-  name: 'LoanAppDataContainer'
   properties: {
-    partitionKey: {
-      paths: [
-        '/id'
-      ]
+    resource: {
+      id: 'LoanAppDatabase'
     }
   }
 }
+
+resource cosmosDbConatiner 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-09-01-preview' = {
+  parent: cosmosDbDatabase
+  name: 'LoanAppDataContainer'
+  properties: {
+    resource: {
+      id: 'LoanAppDataContainer'
+      indexingPolicy: {
+        indexingMode: 'consistent'
+        automatic: true
+        includedPaths: [
+          {
+            path: '/*'
+          }
+        ]
+        excludedPaths: [
+          {
+            path: '/"_etag"/?'
+          }
+        ]
+      }
+      partitionKey: {
+        paths: [
+          '/LoanAppDataId'
+        ]
+        kind: 'Hash'
+        version: 2
+      }
+      uniqueKeyPolicy: {
+        uniqueKeys: []
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+      computedProperties: []
+    }
+  }
+}
+
+
 
 
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
@@ -110,7 +140,7 @@ resource appConfig 'Microsoft.AppConfiguration/configurationStores@2021-03-01-pr
   dependsOn: [
     blobContainer
     formRecognizer
-    cosmosDbContainer
+    cosmosDbConatiner
   ]
 }
 /*****************************  Key Valu Pairs ***************************/
@@ -146,7 +176,7 @@ resource appConfigKeyCosmosDbContainer'Microsoft.AppConfiguration/configurationS
   parent: appConfig
   name: 'cosmos-db-container-name'
   properties: {
-     value: cosmosDbContainer.name
+     value: cosmosDbConatiner.name
   }
 }
 resource appConfigKeyFormRecognizerEp'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {

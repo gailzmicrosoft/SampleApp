@@ -6,7 +6,7 @@
 // created with main.bicep. Refer to the main.bicep file for more details.
 /**************************************************************************/
 @description('Prefix to use for all resources.')
-param resourcePrefixUser string = 'cosmos'
+param resourcePrefixUser string = 'sam27'
 
 var trimmedResourcePrefixUser = length(resourcePrefixUser) > 5 ? substring(resourcePrefixUser, 0, 5) : resourcePrefixUser
 var uniString = toLower(substring(uniqueString(subscription().id, resourceGroup().id), 0, 5))
@@ -20,7 +20,8 @@ var location = 'Central US'
 /**************************************************************************/
 // Create a Cosmos DB account
 /**************************************************************************/
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
+//resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-09-01-preview'
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-09-01-preview' = {
   name: '${toLower(resourcePrefix)}cosmosdbaccount'
   location: location
   kind: 'GlobalDocumentDB'
@@ -31,29 +32,56 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
         locationName: location
       }
     ]
-     capabilities: [
-      {
-        name: 'EnableServerless'
-      }
-    ]
   }
 }
 
 // Create a database in the Cosmos DB account named LoanAppDatabase
-resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/databases@2023-03-15' = {
+//Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-09-01-preview
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-09-01-preview' = {
   parent: cosmosDbAccount
   name: 'LoanAppDatabase'
+  properties: {
+    resource: {
+      id: 'LoanAppDatabase'
+    }
+  }
 }
 
-// Create a container in the database named LoanAppDataContainer with partition key id
-resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/containers@2023-03-15' = {
+resource cosmosDbConatiner 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-09-01-preview' = {
   parent: cosmosDbDatabase
   name: 'LoanAppDataContainer'
   properties: {
-    partitionKey: {
-      paths: [
-        '/id'
-      ]
+    resource: {
+      id: 'LoanAppDataContainer'
+      indexingPolicy: {
+        indexingMode: 'consistent'
+        automatic: true
+        includedPaths: [
+          {
+            path: '/*'
+          }
+        ]
+        excludedPaths: [
+          {
+            path: '/"_etag"/?'
+          }
+        ]
+      }
+      partitionKey: {
+        paths: [
+          '/LoanAppDataId'
+        ]
+        kind: 'Hash'
+        version: 2
+      }
+      uniqueKeyPolicy: {
+        uniqueKeys: []
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+      computedProperties: []
     }
   }
 }
