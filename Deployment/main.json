@@ -5,13 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "3864881405829026617"
+      "templateHash": "3424847463862122533"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
-      "defaultValue": "samapp3"
+      "defaultValue": "mortgage3"
     }
   },
   "variables": {
@@ -75,6 +75,29 @@
       }
     },
     {
+      "type": "Microsoft.DocumentDB/databaseAccounts/databases",
+      "apiVersion": "2021-04-15",
+      "name": "[format('{0}/{1}', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))), 'LoanAppDatabase')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/databases/containers",
+      "apiVersion": "2021-04-15",
+      "name": "[format('{0}/{1}/{2}', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]",
+      "properties": {
+        "partitionKey": {
+          "paths": [
+            "/id"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))), 'LoanAppDatabase')]"
+      ]
+    },
+    {
       "type": "Microsoft.AppConfiguration/configurationStores",
       "apiVersion": "2021-03-01-preview",
       "name": "[format('{0}AppConfig', parameters('resourcePrefix'))]",
@@ -128,7 +151,8 @@
         "value": "LoanAppDatabase"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]"
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))), 'LoanAppDatabase')]"
       ]
     },
     {
@@ -139,7 +163,8 @@
         "value": "LoanAppDataContainer"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]"
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/databases/containers', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]"
       ]
     },
     {

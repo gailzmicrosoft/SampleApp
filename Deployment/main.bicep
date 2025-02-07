@@ -1,4 +1,4 @@
-param resourcePrefix string = 'samapp3'
+param resourcePrefix string = 'mortgage3'
 
 var location = resourceGroup().location
 var subscriptionId = subscription().id
@@ -60,9 +60,28 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
   }
 }
 
+// Create a database in the Cosmos DB account named LoanAppDatabase
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/databases@2021-04-15' = {
+  parent: cosmosDbAccount
+  name: 'LoanAppDatabase'
+}
+
+// Create a container in the database named LoanAppDataContainer
+resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/containers@2021-04-15' = {
+  parent: cosmosDbDatabase
+  name: 'LoanAppDataContainer'
+  properties: {
+    partitionKey: {
+      paths: [
+        '/id'
+      ]
+    }
+  }
+}
+
+
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
 var formRecognizerEndpoint = formRecognizer.properties.endpoint
-//var formRecognizerKey = formRecognizer.properties.keys.key1 // this did not work
 var formRecognizerKey = listKeys(formRecognizer.id, '2021-04-30').key1
 
 
@@ -103,14 +122,14 @@ resource appConfigKeyCosmosDbName 'Microsoft.AppConfiguration/configurationStore
   parent: appConfig
   name: 'cosmos-db-name'
   properties: {
-     value: 'LoanAppDatabase'
+     value: cosmosDbDatabase.name
   }
 }
 resource appConfigKeyCosmosDbContainer'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
   parent: appConfig
   name: 'cosmos-db-container-name'
   properties: {
-     value: 'LoanAppDataContainer'
+     value: cosmosDbContainer.name
   }
 }
 resource appConfigKeyFormRecognizerEp'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
