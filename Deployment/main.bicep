@@ -248,7 +248,8 @@ resource roleAssignmentStorageBlob 'Microsoft.Authorization/roleAssignments@2020
     roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe'
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
-    scope: storageAccount.id
+    //scope: storageAccount.id
+    scope: resourceGroup().id
   }
 }
 
@@ -262,7 +263,8 @@ resource roleAssignmentCosmosDbOwner 'Microsoft.Authorization/roleAssignments@20
     roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
-    scope: cosmosDbAccount.id
+    //scope: cosmosDbAccount.id
+    scope: resourceGroup().id
   }
 }
 
