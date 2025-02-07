@@ -1,4 +1,5 @@
-param resourcePrefix string = 'mortgage3'
+@description('Prefix to use for all resources.')
+param resourcePrefix string = 'pref1'
 
 var location = resourceGroup().location
 var subscriptionId = subscription().id
