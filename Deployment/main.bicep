@@ -53,7 +53,7 @@ resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
 /**************************************************************************/
 // Create a Cosmos DB account
 /**************************************************************************/
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-03-15' = {
   name: '${toLower(resourcePrefix)}cosmosdbaccount'
   location: location
   kind: 'GlobalDocumentDB'
@@ -62,6 +62,11 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
     locations: [
       {
         locationName: location
+      }
+    ]
+     capabilities: [
+      {
+        name: 'EnableServerless'
       }
     ]
   }
@@ -73,8 +78,8 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/databases@2023-
   name: 'LoanAppDatabase'
 }
 
-// Create a container in the database named LoanAppDataContainer
-resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/containers@2021-04-15' = {
+// Create a container in the database named LoanAppDataContainer with partition key id
+resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/containers@2023-03-15' = {
   parent: cosmosDbDatabase
   name: 'LoanAppDataContainer'
   properties: {
@@ -85,8 +90,6 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/cont
     }
   }
 }
-
-
 
 
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
