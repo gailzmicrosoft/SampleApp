@@ -5,13 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "12350736231780352003"
+      "templateHash": "3864881405829026617"
     }
   },
   "parameters": {
     "resourcePrefix": {
       "type": "string",
-      "defaultValue": "mortgageapp"
+      "defaultValue": "samapp3"
     }
   },
   "variables": {
@@ -22,12 +22,31 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
-      "name": "[format('{0}StorageAccount', parameters('resourcePrefix'))]",
+      "name": "[format('{0}storageaccount', toLower(parameters('resourcePrefix')))]",
       "location": "[variables('location')]",
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
       }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2021-04-01",
+      "name": "[format('{0}/{1}', format('{0}storageaccount', toLower(parameters('resourcePrefix'))), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storageaccount', toLower(parameters('resourcePrefix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-04-01",
+      "name": "[format('{0}/{1}/{2}', format('{0}storageaccount', toLower(parameters('resourcePrefix'))), 'default', 'mortgageapp')]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', format('{0}storageaccount', toLower(parameters('resourcePrefix'))), 'default')]"
+      ]
     },
     {
       "type": "Microsoft.CognitiveServices/accounts",
@@ -41,19 +60,9 @@
       "properties": {}
     },
     {
-      "type": "Microsoft.AppConfiguration/configurationStores",
-      "apiVersion": "2021-03-01-preview",
-      "name": "[format('{0}AppConfig', parameters('resourcePrefix'))]",
-      "location": "[variables('location')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "properties": {}
-    },
-    {
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2021-04-15",
-      "name": "[format('{0}CosmosDb', parameters('resourcePrefix'))]",
+      "name": "[format('{0}cosmosdb', toLower(parameters('resourcePrefix')))]",
       "location": "[variables('location')]",
       "kind": "GlobalDocumentDB",
       "properties": {
@@ -64,6 +73,109 @@
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores",
+      "apiVersion": "2021-03-01-preview",
+      "name": "[format('{0}AppConfig', parameters('resourcePrefix'))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'azure-storage-account-name')]",
+      "properties": {
+        "value": "[format('{0}storageaccount', toLower(parameters('resourcePrefix')))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storageaccount', toLower(parameters('resourcePrefix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'azure-storage-blob-container-name')]",
+      "properties": {
+        "value": "mortgageapp"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', format('{0}storageaccount', toLower(parameters('resourcePrefix'))), 'default', 'mortgageapp')]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'cosmos-db-endpoint')]",
+      "properties": {
+        "value": "[string(reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdb', toLower(parameters('resourcePrefix')))), '2021-04-15').documentEndpoint)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdb', toLower(parameters('resourcePrefix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'cosmos-db-name')]",
+      "properties": {
+        "value": "LoanAppDatabase"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'cosmos-db-container-name')]",
+      "properties": {
+        "value": "LoanAppDataContainer"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'form-recognizer-endpoint')]",
+      "properties": {
+        "value": "[string(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', parameters('resourcePrefix'))), '2021-04-30').endpoint)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', parameters('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'form-recognizer-key')]",
+      "properties": {
+        "value": "[string(listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', parameters('resourcePrefix'))), '2021-04-30').key1)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', parameters('resourcePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2024-05-01",
+      "name": "[format('{0}/{1}', format('{0}AppConfig', parameters('resourcePrefix')), 'x-api-key')]",
+      "properties": {
+        "value": "AppConfigApiKey"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', parameters('resourcePrefix')))]"
+      ]
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -96,7 +208,7 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', parameters('resourcePrefix'))), 'Contributor')]",
       "properties": {
-        "roleDefinitionId": "[format('/subscriptions/{0}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c', variables('subscriptionId'))]",
+        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c', variables('subscriptionId'))]",
         "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', parameters('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
         "principalType": "ServicePrincipal",
         "scope": "[resourceGroup().id]"
@@ -105,5 +217,11 @@
         "[resourceId('Microsoft.Web/sites', format('{0}AppService', parameters('resourcePrefix')))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "subscriptionIdValue": {
+      "type": "string",
+      "value": "[variables('subscriptionId')]"
+    }
+  }
 }
