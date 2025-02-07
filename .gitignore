@@ -357,3 +357,7 @@ MigrationBackup/
 
 # Visual Studio Code
 .vscode/
+/Deployment/deploy_code_gaiye.ps1
+/Deployment/webapp-arm.bicep
+/Deployment/webapp-arm-simple.bicep
+/Deployment/webapp-arm.json
