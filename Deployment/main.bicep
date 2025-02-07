@@ -1,15 +1,21 @@
-@description('Prefix to use for all resources.')
-param resourcePrefix string = 'pref1'
 
+@description('Prefix to use for all resources.')
+param resourcePrefixUser string = 'pref1'
+
+var trimmedResourcePrefixUser = length(resourcePrefixUser) > 5 ? substring(resourcePrefixUser, 0, 5) : resourcePrefixUser
+var uniString = toLower(substring(uniqueString(subscription().id, resourceGroup().id), 0, 5))
+
+var resourcePrefix = '${trimmedResourcePrefixUser}${uniString}'
 var location = resourceGroup().location
 var subscriptionId = subscription().id
+
 
 
 /**************************************************************************/
 // Create a storage account and a container
 /**************************************************************************/
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: '${toLower(resourcePrefix)}storageaccount'
+  name: '${toLower(resourcePrefix)}storage'
   location: location
   kind: 'StorageV2'
   sku: {
@@ -48,7 +54,7 @@ resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
 // Create a Cosmos DB account
 /**************************************************************************/
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
-  name: '${toLower(resourcePrefix)}cosmosdb'
+  name: '${toLower(resourcePrefix)}cosmosdbaccount'
   location: location
   kind: 'GlobalDocumentDB'
   properties: {
@@ -62,7 +68,7 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-04-15' = {
 }
 
 // Create a database in the Cosmos DB account named LoanAppDatabase
-resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/databases@2021-04-15' = {
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/databases@2023-03-15' = {
   parent: cosmosDbAccount
   name: 'LoanAppDatabase'
 }
@@ -79,6 +85,8 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/databases/cont
     }
   }
 }
+
+
 
 
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
