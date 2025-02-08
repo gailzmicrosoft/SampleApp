@@ -16,11 +16,22 @@ Secure Rest APIs hosted in Azure App Service. This is a sample architecture that
 
 #### How to Deploy and Test 
 
-Step 1: Deploy azure solution components 
+**Step 1:** Deploy azure solution components 
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fgailzmicrosoft%2FSampleApp%2Fmain%2FDeployment%2Fmain.json)
 
-Step 2: Publish Code to the App Server created in step 1.
+**Step 2**: Publish Code to the App Server created in step 1.
 
-Download the code to your local directory.  Change directory to Deployment. Execute PowerShell script `deploy_code.ps1` 
+Download the code to your local directory. copy the `_sample_app_settings.json` file to the root of the project, rename it to `appsettings.json`. 
+
+Update the following value of the `AppConfig:ConnectionString` in the `appsettings.json` file, using the actual connection string of the App Configurator created in step 1.
+
+`"Ap`pConfig": {`
+    "ConnectionString": "ConnectionStringOfYourAppConfigurator"}`
+
+Change directory to **Deployment**. Execute PowerShell script `deploy_code.ps1`. This will deploy your code in Visual Studio to the App Service instance you deployed in step 1. 
+
+**Step 3:** Test your application. 
+
+The API Key is stored in your App Configurator as the value of 'x-api-key'. When the API client invokes the API, the x-api-key value pair must be constructed in the header.  You can use swagger interface to test the APIs on a browner with the address of the App Service [Swagger UI](https://your-app-service-instance-name.azurewebsites.net/index.html).
 
