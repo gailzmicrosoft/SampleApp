@@ -1,4 +1,3 @@
-
 @description('Prefix to use for all resources.')
 param resourcePrefixUser string = 'mortg'
 
@@ -8,8 +7,6 @@ var uniString = toLower(substring(uniqueString(subscription().id, resourceGroup(
 var resourcePrefix = '${trimmedResourcePrefixUser}${uniString}'
 var location = resourceGroup().location
 var subscriptionId = subscription().id
-
-
 
 /**************************************************************************/
 // Create a storage account and a container
@@ -28,7 +25,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-04-01'
   name: 'default'
 }
 
-// create a container named  mortgageapp in the storage account
+// create a container named mortgageapp in the storage account
 resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
   parent: blobService
   name: 'mortgageapp'
@@ -53,7 +50,6 @@ resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
 /**************************************************************************/
 // Create a Cosmos DB account
 /**************************************************************************/
-
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-09-01-preview' = {
   name: '${toLower(resourcePrefix)}cosmosdbaccount'
   location: location
@@ -69,7 +65,6 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-09-01-previ
 }
 
 // Create a database in the Cosmos DB account named LoanAppDatabase
-//Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-09-01-preview
 resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-09-01-preview' = {
   parent: cosmosDbAccount
   name: 'LoanAppDatabase'
@@ -80,7 +75,8 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@20
   }
 }
 
-resource cosmosDbConatiner 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-09-01-preview' = {
+// Create a container in the Cosmos DB database
+resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-09-01-preview' = {
   parent: cosmosDbDatabase
   name: 'LoanAppDataContainer'
   properties: {
@@ -119,17 +115,12 @@ resource cosmosDbConatiner 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
   }
 }
 
-
-
-
-
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
 var formRecognizerEndpoint = formRecognizer.properties.endpoint
 var formRecognizerKey = listKeys(formRecognizer.id, '2021-04-30').key1
 
-
 /**************************************************************************/
-// appConfig and appConfig Key Valye Pairs
+// appConfig and appConfig Key Value Pairs
 /**************************************************************************/
 resource appConfig 'Microsoft.AppConfiguration/configurationStores@2021-03-01-preview' = {
   name: '${resourcePrefix}AppConfig'
@@ -141,10 +132,10 @@ resource appConfig 'Microsoft.AppConfiguration/configurationStores@2021-03-01-pr
   dependsOn: [
     blobContainer
     formRecognizer
-    cosmosDbConatiner
+    cosmosDbContainer
   ]
 }
-/*****************************  Key Valu Pairs ***************************/
+/*****************************  Key Value Pairs ***************************/
 resource appConfigKeyAzureStorageName 'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
   parent: appConfig
   name: 'azure-storage-account-name'
@@ -173,35 +164,34 @@ resource appConfigKeyCosmosDbName 'Microsoft.AppConfiguration/configurationStore
      value: cosmosDbDatabase.name
   }
 }
-resource appConfigKeyCosmosDbContainer'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
+resource appConfigKeyCosmosDbContainer 'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
   parent: appConfig
   name: 'cosmos-db-container-name'
   properties: {
-     value: cosmosDbConatiner.name
+     value: cosmosDbContainer.name
   }
 }
-resource appConfigKeyFormRecognizerEp'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
+resource appConfigKeyFormRecognizerEp 'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
   parent: appConfig
   name: 'form-recognizer-endpoint'
   properties: {
      value: string(formRecognizerEndpoint)
   }
 }
-resource appConfigKeyFormRecognizerKey'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
+resource appConfigKeyFormRecognizerKey 'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
   parent: appConfig
   name: 'form-recognizer-key'
   properties: {
      value: string(formRecognizerKey)
   }
 }
-resource appConfigKeyApiKey'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
+resource appConfigKeyApiKey 'Microsoft.AppConfiguration/configurationStores/keyValues@2024-05-01' = {
   parent: appConfig
   name: 'x-api-key'
   properties: {
      value:'AppConfigApiKey'
   }
 }
-
 
 /**************************************************************************/
 // App Service Plan and App Service
@@ -227,7 +217,6 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-
 /**************************************************************************/
 // Assign App Service Identity the Contributor role for the Resource Group
 /**************************************************************************/
@@ -235,12 +224,14 @@ var resourceGroupContributorRoleID = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 resource appServiceRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(appService.id, 'Contributor')
   properties: {
-    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{resourceGroupContributorRoleID}'
-    //roleDefinitionId: resourceGroupContributorRoleID
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${resourceGroupContributorRoleID}'
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
-    //scope: resourceGroup().id
+    scope: resourceGroup().id
   }
+  dependsOn: [
+    appService
+  ]
 }
 
 /**************************************************************************/
@@ -250,15 +241,16 @@ var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 resource roleAssignmentStorageBlob 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(appService.id, 'StorageBlobDataContributor')
   properties: {
-    //roleDefinitionId: storageBlobDataContributorRoleID
-    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{storageBlobDataContributorRoleID}'
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${storageBlobDataContributorRoleID}'
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
     //scope: storageAccount.id
-    //scope: resourceGroup().id
+    scope: resourceGroup().id
   }
+  dependsOn: [
+    appService
+  ]
 }
-
 
 /**************************************************************************/
 // Create user-assigned managed identity for the resource group
@@ -268,7 +260,6 @@ resource rg_user_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023
   location: location
 }
 
-
 /**************************************************************************/
 // Assign CosmosDB Account Contributor to rg_user_identity 
 /**************************************************************************/
@@ -276,11 +267,16 @@ var cosmosDbContributorRoleID = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 resource rgIdroleAssignmentCustomRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(rg_user_identity.id, 'cosmosDbContributorRoleID')
   properties: {
-    //roleDefinitionId: cosmosDbContributorRoleID
-    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{cosmosDbContributorRoleID}'
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${cosmosDbContributorRoleID}'
     principalId: rg_user_identity.properties.principalId
     principalType: 'ServicePrincipal'
     //scope: cosmosDbAccount.id
+    scope: resourceGroup().id
   }
+  dependsOn: [
+    rg_user_identity
+    cosmosDbAccount
+  ]
 }
 
+output subscriptionIdValue string = subscriptionId

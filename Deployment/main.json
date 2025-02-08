@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.13.18514",
-      "templateHash": "8457247512340941884"
+      "templateHash": "16571262302203584326"
     }
   },
   "parameters": {
@@ -279,9 +279,10 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'Contributor')]",
       "properties": {
-        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{{resourceGroupContributorRoleID}}', variables('subscriptionId'))]",
+        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{1}', variables('subscriptionId'), variables('resourceGroupContributorRoleID'))]",
         "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
-        "principalType": "ServicePrincipal"
+        "principalType": "ServicePrincipal",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
@@ -292,9 +293,10 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'StorageBlobDataContributor')]",
       "properties": {
-        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{{storageBlobDataContributorRoleID}}', variables('subscriptionId'))]",
+        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{1}', variables('subscriptionId'), variables('storageBlobDataContributorRoleID'))]",
         "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
-        "principalType": "ServicePrincipal"
+        "principalType": "ServicePrincipal",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
@@ -311,13 +313,21 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser'))), 'cosmosDbContributorRoleID')]",
       "properties": {
-        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{{cosmosDbContributorRoleID}}', variables('subscriptionId'))]",
+        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{1}', variables('subscriptionId'), variables('cosmosDbContributorRoleID'))]",
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser'))), '2023-01-31').principalId]",
-        "principalType": "ServicePrincipal"
+        "principalType": "ServicePrincipal",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser')))]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "subscriptionIdValue": {
+      "type": "string",
+      "value": "[variables('subscriptionId')]"
+    }
+  }
 }
