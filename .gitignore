@@ -361,3 +361,4 @@ MigrationBackup/
 /Deployment/webapp-arm.bicep
 /Deployment/webapp-arm-simple.bicep
 /Deployment/webapp-arm.json
+/Deployment/sample_app.zip
