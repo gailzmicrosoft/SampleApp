@@ -1,6 +1,6 @@
 
 @description('Prefix to use for all resources.')
-param resourcePrefixUser string = 'pref1'
+param resourcePrefixUser string = 'mortg'
 
 var trimmedResourcePrefixUser = length(resourcePrefixUser) > 5 ? substring(resourcePrefixUser, 0, 5) : resourcePrefixUser
 var uniString = toLower(substring(uniqueString(subscription().id, resourceGroup().id), 0, 5))
@@ -122,6 +122,7 @@ resource cosmosDbConatiner 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
 
 
 
+
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
 var formRecognizerEndpoint = formRecognizer.properties.endpoint
 var formRecognizerKey = listKeys(formRecognizer.id, '2021-04-30').key1
@@ -226,47 +227,60 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
+
 /**************************************************************************/
 // Assign App Service Identity the Contributor role for the Resource Group
 /**************************************************************************/
-resource roleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+var resourceGroupContributorRoleID = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+resource appServiceRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(appService.id, 'Contributor')
   properties: {
-    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{resourceGroupContributorRoleID}'
+    //roleDefinitionId: resourceGroupContributorRoleID
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
-    scope: resourceGroup().id
+    //scope: resourceGroup().id
   }
 }
 
 /**************************************************************************/
 // Assign App Service Identity the Storage Blob Data Contributor role for the Storage Account
 /**************************************************************************/
+var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 resource roleAssignmentStorageBlob 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(appService.id, 'StorageBlobDataContributor')
   properties: {
-    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+    //roleDefinitionId: storageBlobDataContributorRoleID
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{storageBlobDataContributorRoleID}'
     principalId: appService.identity.principalId
     principalType: 'ServicePrincipal'
     //scope: storageAccount.id
-    scope: resourceGroup().id
+    //scope: resourceGroup().id
   }
 }
 
+
 /**************************************************************************/
-// Assign App Service Identity the Azure Cosmos DB for NoSQL Data Plane 
-// Owner role for the Cosmos DB Account
+// Create user-assigned managed identity for the resource group
 /**************************************************************************/
-resource roleAssignmentCosmosDbOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(appService.id, 'CosmosDbNoSqlDataPlaneOwner')
+resource rg_user_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${resourcePrefixUser}_rg_user_identity'
+  location: location
+}
+
+
+/**************************************************************************/
+// Assign CosmosDB Account Contributor to rg_user_identity 
+/**************************************************************************/
+var cosmosDbContributorRoleID = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+resource rgIdroleAssignmentCustomRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(rg_user_identity.id, 'cosmosDbContributorRoleID')
   properties: {
-    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
-    principalId: appService.identity.principalId
+    //roleDefinitionId: cosmosDbContributorRoleID
+    roleDefinitionId: '${subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/{cosmosDbContributorRoleID}'
+    principalId: rg_user_identity.properties.principalId
     principalType: 'ServicePrincipal'
     //scope: cosmosDbAccount.id
-    scope: resourceGroup().id
   }
 }
-
-output subscriptionIdValue string = subscriptionId
 
