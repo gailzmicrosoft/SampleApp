@@ -219,7 +219,7 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'AppConfig__ConnectionString'
-          value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2021-03-01-preview').primaryReadOnlyKey}'
+          value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2021-03-01-preview').value[0]}'
         }
       ]
     }
@@ -228,6 +228,8 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
     type: 'SystemAssigned'
   }
 }
+
+
 /**************************************************************************/
 // Assign App Service Identity the Contributor role for the Resource Group
 /**************************************************************************/
