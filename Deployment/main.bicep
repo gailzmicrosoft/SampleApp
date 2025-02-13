@@ -219,7 +219,8 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'AppConfig__ConnectionString'
-          value: listKeys(appConfig.id, '2021-03-01-preview').primaryConnectionString
+          //value: listKeys(appConfig.id, '2021-03-01-preview').primaryConnectionString
+          value: listKeys(appConfig.id, '2021-03-01-preview').primaryReadOnlyKey
         }
       ]
     }
