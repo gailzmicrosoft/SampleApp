@@ -228,32 +228,6 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
     type: 'SystemAssigned'
   }
 }
-
-resource appService 'Microsoft.Web/sites@2021-02-01' = {
-  name: '${resourcePrefix}AppService'
-  location: location
-  kind: 'app'
-  properties: {
-    serverFarmId: appServicePlan.id
-    siteConfig: {
-      appSettings: [
-        {
-          name: 'APP_CONFIG_ENDPOINT'
-          value: appConfig.properties.endpoint
-        }
-        {
-          name: 'AppConfig__ConnectionString'
-          //value: listKeys(appConfig.id, '2021-03-01-preview').primaryConnectionString // this did not work
-          value: listKeys(appConfig.id, '2021-03-01-preview').primaryReadOnlyKey
-        }
-      ]
-    }
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-}
-
 /**************************************************************************/
 // Assign App Service Identity the Contributor role for the Resource Group
 /**************************************************************************/
