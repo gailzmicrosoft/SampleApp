@@ -211,6 +211,18 @@ resource appService 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'app'
   properties: {
     serverFarmId: appServicePlan.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'APP_CONFIG_ENDPOINT'
+          value: appConfig.properties.endpoint
+        }
+        {
+          name: 'AppConfig__ConnectionString'
+          value: listKeys(appConfig.id, '2021-03-01-preview').primaryConnectionString
+        }
+      ]
+    }
   }
   identity: {
     type: 'SystemAssigned'
@@ -279,4 +291,20 @@ resource rgIdroleAssignmentCustomRole 'Microsoft.Authorization/roleAssignments@2
   ]
 }
 
+var zipUrl = 'https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip'
+
+resource zipDeploy 'Microsoft.Web/sites/extensions@2021-02-01' = {
+  name: 'MSDeploy'
+  parent: appService
+  properties: {
+    packageUri: zipUrl
+  }
+  dependsOn: [
+    appService
+  ]
+}
+
 output subscriptionIdValue string = subscriptionId
+
+
+
