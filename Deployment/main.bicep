@@ -37,7 +37,7 @@ resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/container
 /**************************************************************************/
 // Create a Form Recognizer resource
 /**************************************************************************/
-resource formRecognizer 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
+resource formRecognizer 'Microsoft.CognitiveServices/accounts@2021-04-30' = {
   name: '${resourcePrefix}FormRecognizer'
   location: location
   kind: 'FormRecognizer'
@@ -117,7 +117,8 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
 
 var cosmosDbEndpoint = cosmosDbAccount.properties.documentEndpoint
 var formRecognizerEndpoint = formRecognizer.properties.endpoint
-var formRecognizerKey = listKeys(formRecognizer.id, '2024-04-01').key1
+var formRecognizerKey = listKeys(formRecognizer.id, '2021-04-30').key1
+
 
 /**************************************************************************/
 // appConfig and appConfig Key Value Pairs

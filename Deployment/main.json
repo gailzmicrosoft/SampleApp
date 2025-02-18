@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "12332337236636121633"
+      "templateHash": "4020093725572445779"
     }
   },
   "parameters": {
@@ -60,7 +60,7 @@
     },
     {
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2024-10-01",
+      "apiVersion": "2021-04-30",
       "name": "[format('{0}FormRecognizer', variables('resourcePrefix'))]",
       "location": "[variables('location')]",
       "kind": "FormRecognizer",
@@ -219,7 +219,7 @@
       "apiVersion": "2024-05-01",
       "name": "[format('{0}/{1}', format('{0}AppConfig', variables('resourcePrefix')), 'form-recognizer-endpoint')]",
       "properties": {
-        "value": "[string(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2024-10-01').endpoint)]"
+        "value": "[string(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2021-04-30').endpoint)]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
@@ -231,7 +231,7 @@
       "apiVersion": "2024-05-01",
       "name": "[format('{0}/{1}', format('{0}AppConfig', variables('resourcePrefix')), 'form-recognizer-key')]",
       "properties": {
-        "value": "[string(listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2024-04-01').key1)]"
+        "value": "[string(listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2021-04-30').key1)]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
