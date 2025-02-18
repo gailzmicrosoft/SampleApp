@@ -231,7 +231,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
         }
         {
           name: 'AppConfig__ConnectionString'
-          value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2021-04-30').value[0]}'
+          value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2024-05-01').value[0]}'
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'

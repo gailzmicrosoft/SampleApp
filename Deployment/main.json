@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "1767409761919165373"
+      "templateHash": "10011345221720570322"
     }
   },
   "parameters": {
@@ -283,7 +283,7 @@
             },
             {
               "name": "AppConfig__ConnectionString",
-              "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-04-30').value[0])]"
+              "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').value[0])]"
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
