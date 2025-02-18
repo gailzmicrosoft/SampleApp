@@ -5,13 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "7252159290596483071"
+      "templateHash": "12332337236636121633"
     }
   },
   "parameters": {
     "resourcePrefixUser": {
       "type": "string",
-      "defaultValue": "mortg",
+      "defaultValue": "mrtg1",
       "metadata": {
         "description": "Prefix to use for all resources."
       }
