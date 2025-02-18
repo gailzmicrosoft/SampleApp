@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "10011345221720570322"
+      "templateHash": "13832436662403498971"
     }
   },
   "parameters": {
@@ -23,7 +23,6 @@
     "resourcePrefix": "[format('{0}{1}', variables('trimmedResourcePrefixUser'), variables('uniString'))]",
     "location": "[resourceGroup().location]",
     "subscriptionId": "[subscription().id]",
-    "zipUrl": "https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip",
     "resourceGroupContributorRoleID": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
     "storageBlobDataContributorRoleID": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
     "cosmosDbContributorRoleID": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
@@ -275,6 +274,8 @@
       "kind": "app",
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}AppServicePlan', variables('resourcePrefix')))]",
+        "httpsOnly": true,
+        "endToEndEncryptionEnabled": false,
         "siteConfig": {
           "appSettings": [
             {
@@ -284,10 +285,6 @@
             {
               "name": "AppConfig__ConnectionString",
               "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').value[0])]"
-            },
-            {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "[variables('zipUrl')]"
             }
           ]
         }
