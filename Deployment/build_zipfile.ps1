@@ -1,6 +1,6 @@
 # deploy_code.ps1
 
-# how to run: 
+#how to run: 
 # cd Deployment 
 # .\deploy_code.ps1
 
@@ -26,12 +26,3 @@ Compress-Archive -Path * -DestinationPath $zipFilePath
 
 Set-Location $scriptPath 
 
-# Step 3: Login and Deploy to Azure App Services
-
-az login
-
-# get user input
-$resourceGroup = Read-Host -Prompt "Enter your resource group name"
-$appServiceName = Read-Host -Prompt "Enter your app service name"
-
-az webapp deploy --resource-group $resourceGroup --name $appServiceName --src-path $zipFile --type zip
