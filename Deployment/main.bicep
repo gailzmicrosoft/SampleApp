@@ -292,20 +292,25 @@ resource rgIdroleAssignmentCustomRole 'Microsoft.Authorization/roleAssignments@2
   ]
 }
 
-var zipUrl = 'https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip'
 
-resource zipDeploy 'Microsoft.Web/sites/extensions@2021-02-01' = {
-  name: 'MSDeploy'
-  parent: appService
-  properties: {
-    packageUri: zipUrl
-  }
-  dependsOn: [
-    appService
-  ]
-}
+/**************************************************************************/
+// Deploy Code (.zip file) to App Service
+/**************************************************************************/
 
-output subscriptionIdValue string = subscriptionId
+// var zipUrl = 'https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip'
+
+// resource zipDeploy 'Microsoft.Web/sites/extensions@2021-02-01' = {
+//   name: 'MSDeploy'
+//   parent: appService
+//   properties: {
+//     packageUri: zipUrl
+//   }
+//   dependsOn: [
+//     appService
+//   ]
+// }
+
+// output subscriptionIdValue string = subscriptionId
 
 
 
