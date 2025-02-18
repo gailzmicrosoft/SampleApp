@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "13832436662403498971"
+      "templateHash": "1639343834026535144"
     }
   },
   "parameters": {
@@ -285,6 +285,10 @@
             {
               "name": "AppConfig__ConnectionString",
               "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').value[0])]"
+            },
+            {
+              "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
+              "value": "false"
             }
           ]
         }
