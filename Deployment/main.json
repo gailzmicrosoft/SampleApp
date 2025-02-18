@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "14428188320189307510"
+      "templateHash": "7252159290596483071"
     }
   },
   "parameters": {
@@ -23,14 +23,15 @@
     "resourcePrefix": "[format('{0}{1}', variables('trimmedResourcePrefixUser'), variables('uniString'))]",
     "location": "[resourceGroup().location]",
     "subscriptionId": "[subscription().id]",
-    "resourceGroupContributorRoleID": "b24988ac-6180-42a0-ab88-20f7382dd24c",
-    "storageBlobDataContributorRoleID": "ba92f5b4-2d11-453d-a403-e96b0029c9fe",
-    "cosmosDbContributorRoleID": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+    "resourceGroupContributorRoleID": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "storageBlobDataContributorRoleID": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+    "cosmosDbContributorRoleID": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "zipUrl": "https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2023-05-01",
       "name": "[format('{0}storage', toLower(variables('resourcePrefix')))]",
       "location": "[variables('location')]",
       "kind": "StorageV2",
@@ -40,7 +41,7 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts/blobServices",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2023-05-01",
       "name": "[format('{0}/{1}', format('{0}storage', toLower(variables('resourcePrefix'))), 'default')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', format('{0}storage', toLower(variables('resourcePrefix'))))]"
@@ -48,7 +49,7 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "apiVersion": "2021-04-01",
+      "apiVersion": "2023-05-01",
       "name": "[format('{0}/{1}/{2}', format('{0}storage', toLower(variables('resourcePrefix'))), 'default', 'mortgageapp')]",
       "properties": {
         "publicAccess": "None"
@@ -59,7 +60,7 @@
     },
     {
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2021-04-30",
+      "apiVersion": "2024-10-01",
       "name": "[format('{0}FormRecognizer', variables('resourcePrefix'))]",
       "location": "[variables('location')]",
       "kind": "FormRecognizer",
@@ -70,7 +71,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts",
-      "apiVersion": "2024-09-01-preview",
+      "apiVersion": "2024-11-15",
       "name": "[format('{0}cosmosdbaccount', toLower(variables('resourcePrefix')))]",
       "location": "[variables('location')]",
       "kind": "GlobalDocumentDB",
@@ -85,7 +86,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
-      "apiVersion": "2024-09-01-preview",
+      "apiVersion": "2024-11-15",
       "name": "[format('{0}/{1}', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase')]",
       "properties": {
         "resource": {
@@ -98,7 +99,7 @@
     },
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
-      "apiVersion": "2024-09-01-preview",
+      "apiVersion": "2024-11-15",
       "name": "[format('{0}/{1}/{2}', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))), 'LoanAppDatabase', 'LoanAppDataContainer')]",
       "properties": {
         "resource": {
@@ -140,7 +141,7 @@
     },
     {
       "type": "Microsoft.AppConfiguration/configurationStores",
-      "apiVersion": "2021-03-01-preview",
+      "apiVersion": "2024-05-01",
       "name": "[format('{0}AppConfig', variables('resourcePrefix'))]",
       "location": "[variables('location')]",
       "sku": {
@@ -182,7 +183,7 @@
       "apiVersion": "2024-05-01",
       "name": "[format('{0}/{1}', format('{0}AppConfig', variables('resourcePrefix')), 'cosmos-db-endpoint')]",
       "properties": {
-        "value": "[string(reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix')))), '2024-09-01-preview').documentEndpoint)]"
+        "value": "[string(reference(resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix')))), '2024-11-15').documentEndpoint)]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
@@ -218,7 +219,7 @@
       "apiVersion": "2024-05-01",
       "name": "[format('{0}/{1}', format('{0}AppConfig', variables('resourcePrefix')), 'form-recognizer-endpoint')]",
       "properties": {
-        "value": "[string(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2021-04-30').endpoint)]"
+        "value": "[string(reference(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2024-10-01').endpoint)]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
@@ -230,7 +231,7 @@
       "apiVersion": "2024-05-01",
       "name": "[format('{0}/{1}', format('{0}AppConfig', variables('resourcePrefix')), 'form-recognizer-key')]",
       "properties": {
-        "value": "[string(listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2021-04-30').key1)]"
+        "value": "[string(listKeys(resourceId('Microsoft.CognitiveServices/accounts', format('{0}FormRecognizer', variables('resourcePrefix'))), '2024-04-01').key1)]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix')))]",
@@ -250,17 +251,25 @@
     },
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2024-04-01",
       "name": "[format('{0}AppServicePlan', variables('resourcePrefix'))]",
       "location": "[variables('location')]",
+      "kind": "linux",
       "sku": {
-        "name": "P1v2",
-        "tier": "PremiumV2"
+        "name": "B1",
+        "tier": "Basic",
+        "size": "B1",
+        "family": "B",
+        "capacity": 1
+      },
+      "properties": {
+        "perSiteScaling": false,
+        "reserved": true
       }
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-02-01",
+      "apiVersion": "2024-04-01",
       "name": "[format('{0}AppService', variables('resourcePrefix'))]",
       "location": "[variables('location')]",
       "kind": "app",
@@ -270,11 +279,11 @@
           "appSettings": [
             {
               "name": "APP_CONFIG_ENDPOINT",
-              "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-03-01-preview').endpoint]"
+              "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint]"
             },
             {
               "name": "AppConfig__ConnectionString",
-              "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-03-01-preview').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-03-01-preview').value[0])]"
+              "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-03-01-preview').value[0])]"
             }
           ]
         }
@@ -292,10 +301,9 @@
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'Contributor')]",
       "properties": {
-        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{1}', variables('subscriptionId'), variables('resourceGroupContributorRoleID'))]",
-        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
-        "principalType": "ServicePrincipal",
-        "scope": "[resourceGroup().id]"
+        "roleDefinitionId": "[variables('resourceGroupContributorRoleID')]",
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2024-04-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
@@ -303,13 +311,12 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'StorageBlobDataContributor')]",
       "properties": {
-        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{1}', variables('subscriptionId'), variables('storageBlobDataContributorRoleID'))]",
-        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2021-02-01', 'full').identity.principalId]",
-        "principalType": "ServicePrincipal",
-        "scope": "[resourceGroup().id]"
+        "roleDefinitionId": "[variables('storageBlobDataContributorRoleID')]",
+        "principalId": "[reference(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), '2024-04-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
@@ -323,18 +330,34 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "name": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser'))), 'cosmosDbContributorRoleID')]",
       "properties": {
-        "roleDefinitionId": "[format('{0}/providers/Microsoft.Authorization/roleDefinitions/{1}', variables('subscriptionId'), variables('cosmosDbContributorRoleID'))]",
+        "roleDefinitionId": "[variables('cosmosDbContributorRoleID')]",
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser'))), '2023-01-31').principalId]",
-        "principalType": "ServicePrincipal",
-        "scope": "[resourceGroup().id]"
+        "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser')))]"
       ]
+    },
+    {
+      "type": "Microsoft.Web/sites/extensions",
+      "apiVersion": "2024-04-01",
+      "name": "[format('{0}/{1}', format('{0}AppService', variables('resourcePrefix')), 'MSDeploy')]",
+      "properties": {
+        "packageUri": "[variables('zipUrl')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
+      ]
     }
-  ]
+  ],
+  "outputs": {
+    "subscriptionIdValue": {
+      "type": "string",
+      "value": "[variables('subscriptionId')]"
+    }
+  }
 }
