@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "368980679933597572"
+      "templateHash": "1767409761919165373"
     }
   },
   "parameters": {
@@ -283,7 +283,7 @@
             },
             {
               "name": "AppConfig__ConnectionString",
-              "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-03-01-preview').value[0])]"
+              "value": "[format('Endpoint={0};Id={1};Secret={2}', reference(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2024-05-01').endpoint, resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), listKeys(resourceId('Microsoft.AppConfiguration/configurationStores', format('{0}AppConfig', variables('resourcePrefix'))), '2021-04-30').value[0])]"
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
@@ -302,7 +302,7 @@
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
+      "apiVersion": "2022-04-01",
       "name": "[guid(resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix'))), 'Contributor')]",
       "properties": {
         "roleDefinitionId": "[variables('resourceGroupContributorRoleID')]",
@@ -345,23 +345,6 @@
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', format('{0}cosmosdbaccount', toLower(variables('resourcePrefix'))))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}_rg_user_identity', parameters('resourcePrefixUser')))]"
       ]
-    },
-    {
-      "type": "Microsoft.Web/sites/extensions",
-      "apiVersion": "2024-04-01",
-      "name": "[format('{0}/{1}', format('{0}AppService', variables('resourcePrefix')), 'MSDeploy')]",
-      "properties": {
-        "packageUri": "[variables('zipUrl')]"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', format('{0}AppService', variables('resourcePrefix')))]"
-      ]
     }
-  ],
-  "outputs": {
-    "subscriptionIdValue": {
-      "type": "string",
-      "value": "[variables('subscriptionId')]"
-    }
-  }
+  ]
 }

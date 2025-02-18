@@ -231,7 +231,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
         }
         {
           name: 'AppConfig__ConnectionString'
-          value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2021-03-01-preview').value[0]}'
+          value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2021-04-30').value[0]}'
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
@@ -253,7 +253,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
 //var resourceGroupContributorRoleID = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var resourceGroupContributorRoleID = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 
-resource appServiceRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource appServiceRoleAssignmentContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(appService.id, 'Contributor')
   scope: resourceGroup()
   properties: {
@@ -316,19 +316,19 @@ resource rgIdroleAssignmentCustomRole 'Microsoft.Authorization/roleAssignments@2
 
 
 
-/**************************************************************************/
-// Deploy Code (.zip file) to App Service
-/**************************************************************************/
+// /**************************************************************************/
+// // Deploy Code (.zip file) to App Service
+// /**************************************************************************/
 
-resource zipDeploy 'Microsoft.Web/sites/extensions@2024-04-01' = {
-  name: 'MSDeploy'
-  parent: appService
-  properties: {
-    packageUri: zipUrl
-  }
-}
+// resource zipDeploy 'Microsoft.Web/sites/extensions@2024-04-01' = {
+//   name: 'MSDeploy'
+//   parent: appService
+//   properties: {
+//     packageUri: zipUrl
+//   }
+// }
 
-output subscriptionIdValue string = subscriptionId
+// output subscriptionIdValue string = subscriptionId
 
 
 
