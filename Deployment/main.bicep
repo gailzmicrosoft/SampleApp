@@ -1,5 +1,5 @@
 @description('Prefix to use for all resources.')
-param resourcePrefixUser string = 'mortg'
+param resourcePrefixUser string = 'mrtg1'
 
 var trimmedResourcePrefixUser = length(resourcePrefixUser) > 5 ? substring(resourcePrefixUser, 0, 5) : resourcePrefixUser
 var uniString = toLower(substring(uniqueString(subscription().id, resourceGroup().id), 0, 5))
