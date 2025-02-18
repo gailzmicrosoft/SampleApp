@@ -215,6 +215,8 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
 
 }
 
+// Code to be deployed to the App Service is in a .zip file
+var zipUrl = 'https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip'
 resource appService 'Microsoft.Web/sites@2024-04-01' = {
   name: '${resourcePrefix}AppService'
   location: location
@@ -231,6 +233,10 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
           name: 'AppConfig__ConnectionString'
           value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2021-03-01-preview').value[0]}'
         }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: zipUrl
+        }
       ]
     }
   }
@@ -238,6 +244,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
     type: 'SystemAssigned'
   }
 }
+
 
 
 /**************************************************************************/
@@ -308,11 +315,10 @@ resource rgIdroleAssignmentCustomRole 'Microsoft.Authorization/roleAssignments@2
 }
 
 
+
 /**************************************************************************/
 // Deploy Code (.zip file) to App Service
 /**************************************************************************/
-
-var zipUrl = 'https://raw.githubusercontent.com/gailzmicrosoft/SampleApp/main/Deployment/sample_app.zip'
 
 resource zipDeploy 'Microsoft.Web/sites/extensions@2024-04-01' = {
   name: 'MSDeploy'
