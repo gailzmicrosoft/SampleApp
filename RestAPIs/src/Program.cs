@@ -59,10 +59,11 @@ namespace RestAPIs
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
             // You need to configure Azure App Configuration with managed identity already for access 
-            var connectionString = builder.Configuration["AppConfig:ConnectionString"];
+            //var connectionString = builder.Configuration["AppConfig:ConnectionString"]; // This syntax was not allowed in BICEP
+            var connectionString = builder.Configuration["AppConfig__ConnectionString"];
             if (string.IsNullOrEmpty(connectionString))
             {
-                throw new ArgumentNullException(nameof(connectionString), "AppConfig:ConnectionString is not set in the configuration.");
+                throw new ArgumentNullException(nameof(connectionString), "AppConfig__ConnectionString not set in the configuration.");
             }
 
             builder.Configuration.AddAzureAppConfiguration(options =>

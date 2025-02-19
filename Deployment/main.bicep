@@ -218,8 +218,8 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
           value: appConfig.properties.endpoint
         }
         {
-          //name: 'AppConfig__ConnectionString'
-          name:'AppConfig:ConnectionString'
+          name: 'AppConfig__ConnectionString'
+          //name:'AppConfig:ConnectionString' // This was not allowed 
           value: 'Endpoint=${appConfig.properties.endpoint};Id=${appConfig.id};Secret=${listKeys(appConfig.id, '2024-05-01').value[0]}'
         }
         {name: 'WEBSITE_ENABLE_SYNC_UPDATE_SITE'
