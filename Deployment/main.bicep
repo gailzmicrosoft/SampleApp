@@ -82,20 +82,6 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
   properties: {
     resource: {
       id: 'LoanAppDataContainer'
-      indexingPolicy: {
-        indexingMode: 'consistent'
-        automatic: true
-        includedPaths: [
-          {
-            path: '/*'
-          }
-        ]
-        excludedPaths: [
-          {
-            path: '/"_etag"/?'
-          }
-        ]
-      }
       partitionKey: {
         paths: [
           '/LoanAppDataId'
@@ -106,11 +92,6 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
       uniqueKeyPolicy: {
         uniqueKeys: []
       }
-      conflictResolutionPolicy: {
-        mode: 'LastWriterWins'
-        conflictResolutionPath: '/_ts'
-      }
-      computedProperties: []
     }
   }
 }
@@ -220,11 +201,17 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
   name: '${resourcePrefix}AppService'
   location: location
   kind: 'app'
+  tags:{
+    displayName: 'Mortgage Advisor'
+    environment: 'production'
+    'hidden-related:${appServicePlan.id}':'empty'
+  }
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
     endToEndEncryptionEnabled:false
     siteConfig: {
+      linuxFxVersion: 'DOTNETCORE|8.0'
       appSettings: [
         {
           name: 'APP_CONFIG_ENDPOINT'

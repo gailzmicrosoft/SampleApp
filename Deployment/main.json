@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "17670496592263649684"
+      "templateHash": "10748267569570778970"
     }
   },
   "parameters": {
@@ -103,20 +103,6 @@
       "properties": {
         "resource": {
           "id": "LoanAppDataContainer",
-          "indexingPolicy": {
-            "indexingMode": "consistent",
-            "automatic": true,
-            "includedPaths": [
-              {
-                "path": "/*"
-              }
-            ],
-            "excludedPaths": [
-              {
-                "path": "/\"_etag\"/?"
-              }
-            ]
-          },
           "partitionKey": {
             "paths": [
               "/LoanAppDataId"
@@ -126,12 +112,7 @@
           },
           "uniqueKeyPolicy": {
             "uniqueKeys": []
-          },
-          "conflictResolutionPolicy": {
-            "mode": "LastWriterWins",
-            "conflictResolutionPath": "/_ts"
-          },
-          "computedProperties": []
+          }
         }
       },
       "dependsOn": [
@@ -272,11 +253,17 @@
       "name": "[format('{0}AppService', variables('resourcePrefix'))]",
       "location": "[variables('location')]",
       "kind": "app",
+      "tags": {
+        "displayName": "Mortgage Advisor",
+        "environment": "production",
+        "[format('hidden-related:{0}', resourceId('Microsoft.Web/serverfarms', format('{0}AppServicePlan', variables('resourcePrefix'))))]": "empty"
+      },
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', format('{0}AppServicePlan', variables('resourcePrefix')))]",
         "httpsOnly": true,
         "endToEndEncryptionEnabled": false,
         "siteConfig": {
+          "linuxFxVersion": "DOTNETCORE|8.0",
           "appSettings": [
             {
               "name": "APP_CONFIG_ENDPOINT",
