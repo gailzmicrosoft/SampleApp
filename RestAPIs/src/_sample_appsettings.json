@@ -16,7 +16,7 @@
       }
     }
   },
-  "AppConfig__ConnectionString": "Endpoint=https://mrtgaz5aarappconfig.azconfig.io;Id=2AqT;Secret=C5Ppg6t1s3hcG8czcdekJKmeKVW3N6WxpIKcv0QjLgeV20EPuEkwJQQJ99BBAC1i4TkcgdnQAAACAZACRccR",
+  "AppConfig__ConnectionString": "Endpoint=https://youtappconfig.azconfig.io;Id=yourID;Secret=CwJQQJ99BBAC1",
   "AllowedHosts": "*"
 }
    
